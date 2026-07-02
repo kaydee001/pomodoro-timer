@@ -1,14 +1,18 @@
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, QObject, Signal
 
 
-class PomodoroTimer():
+class PomodoroTimer(QObject):
+    tick_signal = Signal(int, int)
+
     def __init__(self):
-        self.seconds = 0
-        self.minutes = self.work_duration
+        super().__init__()
+
         self.state = "IDLE"
         self.work_duration = 25
         self.break_duration = 5
         self.timer = QTimer()
+        self.seconds = 0
+        self.minutes = self.work_duration
 
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.tick)
@@ -32,6 +36,7 @@ class PomodoroTimer():
         self.seconds = 0
 
     def tick(self):
+        self.tick_signal.emit(self.minutes, self.seconds)
         self.seconds -= 1
         if self.seconds == -1:
             self.seconds = 59
